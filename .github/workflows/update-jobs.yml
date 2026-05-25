@@ -1,0 +1,33 @@
+name: Actualizar ofertas de empleo
+
+on:
+  schedule:
+    - cron: '0 9 * * *'  # Todos los días a las 9am UTC (6am Chile)
+  workflow_dispatch:       # También se puede ejecutar manualmente
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: pip install requests beautifulsoup4 lxml
+
+      - name: Scrape jobs
+        run: python scrape.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add jobs.json
+          git diff --staged --quiet || git commit -m "Actualizar ofertas $(date -u '+%Y-%m-%d %H:%M UTC')"
+          git push
