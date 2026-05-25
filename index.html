@@ -50,11 +50,36 @@
   .pnl { display: none; }
   .pnl.active { display: block; }
 
+  /* API Key banner */
+  .api-banner {
+    background: #FFF8E1; border: 1px solid #FFD54F; border-radius: 12px;
+    padding: 16px; margin-bottom: 16px;
+  }
+  .api-banner h3 { font-size: 14px; font-weight: 600; color: #E65100; margin-bottom: 8px; }
+  .api-banner p { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 12px; }
+  .api-input-row { display: flex; gap: 8px; }
+  .api-input-row input {
+    flex: 1; padding: 9px 12px; border: 1px solid var(--borde);
+    border-radius: 8px; font-size: 13px; font-family: monospace;
+  }
+  .api-input-row input:focus { outline: none; border-color: var(--verde-claro); }
+  .btn-save {
+    background: var(--verde); color: #fff; border: none;
+    padding: 9px 16px; border-radius: 8px; font-size: 13px;
+    cursor: pointer; white-space: nowrap;
+  }
+  .btn-save:hover { background: var(--verde-claro); }
+  .api-ok {
+    background: var(--verde-fondo); border: 1px solid #B8DCC9; border-radius: 12px;
+    padding: 12px 16px; margin-bottom: 16px; font-size: 13px; color: #1B6B43;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .btn-remove { background: none; border: 1px solid #B8DCC9; color: #666; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; }
+
   /* Stats */
   .stats {
     background: var(--verde-fondo); border: 1px solid #B8DCC9; border-radius: 12px;
-    padding: 12px 16px; margin-bottom: 16px;
-    display: flex; gap: 20px; flex-wrap: wrap;
+    padding: 12px 16px; margin-bottom: 16px; display: flex; gap: 20px; flex-wrap: wrap;
   }
   .stat { text-align: center; flex: 1; }
   .snum { font-size: 22px; font-weight: 700; color: var(--verde); }
@@ -101,18 +126,14 @@
   .ap { font-size: 12px; background: #EDE7F6; color: #4527A0; border: 1px solid #D1C4E9; padding: 4px 10px; border-radius: 14px; }
   .ibox { background: var(--verde-fondo); border-radius: 10px; padding: 14px; font-size: 13px; line-height: 1.7; }
 
-  /* Spin */
+  /* Spinner */
   .spin-wrap { text-align: center; padding: 50px 20px; }
-  .spinner {
-    display: inline-block; width: 36px; height: 36px;
-    border: 3px solid var(--borde); border-top-color: var(--verde);
-    border-radius: 50%; animation: sp .8s linear infinite; margin-bottom: 14px;
-  }
+  .spinner { display: inline-block; width: 36px; height: 36px; border: 3px solid var(--borde); border-top-color: var(--verde); border-radius: 50%; animation: sp .8s linear infinite; margin-bottom: 14px; }
   @keyframes sp { to { transform: rotate(360deg); } }
-  .slbl2 { color: var(--muted); font-size: 14px; }
+  .spin-lbl { color: var(--muted); font-size: 14px; }
 
   .uinfo { font-size: 12px; color: var(--muted); text-align: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--borde); }
-  .empty { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 14px; line-height: 1.6; }
+  .empty { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 14px; line-height: 1.8; }
 </style>
 </head>
 <body>
@@ -135,17 +156,13 @@
 
   <!-- PARA TI -->
   <div class="pnl active" id="pnl-para-ti">
+    <div id="apiBanner"></div>
     <div class="stats" id="statsBar" style="display:none">
       <div class="stat"><div class="snum" id="sm">0</div><div class="slbl">calzan contigo</div></div>
       <div class="stat"><div class="snum" id="sn">0</div><div class="slbl">menos de 7 días</div></div>
-      <div class="stat"><div class="snum" id="st">0</div><div class="slbl">total cargadas</div></div>
+      <div class="stat"><div class="snum" id="st">0</div><div class="slbl">total encontradas</div></div>
     </div>
-    <div id="lista">
-      <div class="spin-wrap">
-        <div class="spinner"></div>
-        <div class="slbl2">Cargando ofertas...</div>
-      </div>
-    </div>
+    <div id="lista"></div>
     <div class="uinfo" id="uinfo"></div>
   </div>
 
@@ -202,11 +219,11 @@
       <div class="kwrap" id="arDisplay"></div>
     </div>
     <div class="psec">
-      <h3>¿Cómo funciona "Para ti"?</h3>
+      <h3>API Key de Anthropic</h3>
       <div class="ibox">
-        La app lee directamente el archivo <strong>jobs.json</strong> alojado en tu repositorio GitHub.<br><br>
-        Un script de <strong>GitHub Actions</strong> (gratis) lo actualiza automáticamente cada día a las 6am Chile, scrapeando CompuTrabajo y Trabajando.com.<br><br>
-        <strong>Sin servidor · Sin API key · Sin costo</strong> — exactamente igual que la app de Entel.
+        La key se guarda <strong>solo en tu navegador</strong> (localStorage). Nunca se envía a ningún servidor externo — va directamente desde tu browser a la API de Anthropic.<br><br>
+        Obtén tu key en <strong>console.anthropic.com</strong> → API Keys → Create Key.<br><br>
+        Con USD $5 tienes para <strong>varios meses</strong> de búsquedas diarias automáticas.
       </div>
     </div>
     <div class="uinfo" id="uinfoPerfil"></div>
@@ -228,17 +245,51 @@ var KW = [
   'diagnóstico social','visita domiciliaria',
   'protección social','vulnerabilidad','vulnerables',
 ];
-var AREAS = ['Intervención social / terreno','Gestión y programas sociales',
+var AREAS = [
+  'Intervención social / terreno','Gestión y programas sociales',
   'Salud · CESFAM · Hospitales','Municipalidades · Sector público',
-  'Infancia y familia · SENAME','Empresas · Bienestar laboral'];
+  'Infancia y familia · SENAME','Empresas · Bienestar laboral'
+];
 
 document.getElementById('kwDisplay').innerHTML = KW.map(k=>'<span class="kw">'+k+'</span>').join('');
 document.getElementById('arDisplay').innerHTML = AREAS.map(a=>'<span class="ap">'+a+'</span>').join('');
 
+// === API KEY ===
+function getKey(){ return localStorage.getItem('ts_apikey') || ''; }
+function saveKey(k){ localStorage.setItem('ts_apikey', k.trim()); }
+function removeKey(){ localStorage.removeItem('ts_apikey'); renderBanner(); cargar(); }
+
+function renderBanner(){
+  var key = getKey();
+  var el = document.getElementById('apiBanner');
+  if(key){
+    el.innerHTML = '<div class="api-ok">✅ API Key configurada · Búsqueda automática activa <button class="btn-remove" onclick="removeKey()">Cambiar</button></div>';
+  } else {
+    el.innerHTML = '<div class="api-banner">'+
+      '<h3>⚙️ Configura tu API Key para búsqueda automática</h3>'+
+      '<p>Ingresa tu API Key de Anthropic para que la app busque ofertas reales de Trabajo Social en Chile de forma automática. La key se guarda solo en este navegador.</p>'+
+      '<div class="api-input-row">'+
+      '<input type="password" id="keyInput" placeholder="sk-ant-api03-..." />'+
+      '<button class="btn-save" onclick="guardarKey()">Guardar</button>'+
+      '</div>'+
+      '</div>';
+  }
+}
+
+function guardarKey(){
+  var val = document.getElementById('keyInput').value.trim();
+  if(!val.startsWith('sk-ant-')){
+    alert('La key debe comenzar con sk-ant-'); return;
+  }
+  saveKey(val);
+  renderBanner();
+  cargar();
+}
+
 // === UTILS ===
 function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
 function isMatch(j){
-  var t = norm(j.title)+' '+norm(j.org||'');
+  var t = norm(j.title)+' '+norm(j.org||'')+' '+norm(j.description||'');
   return KW.some(k=>t.includes(norm(k)));
 }
 function daysAgo(d){
@@ -249,67 +300,96 @@ function daysAgo(d){
 
 // === CARD ===
 function cardHTML(j){
-  var match = isMatch(j), days = daysAgo(j.date), isNew = days<7;
-  var cls = 'card'+(match?' match':'');
-  var b = '';
+  var match=isMatch(j), days=daysAgo(j.date), isNew=days<7;
+  var cls='card'+(match?' match':'');
+  var b='';
   if(match) b+='<span class="badge bp">✓ Perfil</span>';
-  if(isNew) b+='<span class="badge bn">Nuevo</span>';
+  if(isNew)  b+='<span class="badge bn">Nuevo</span>';
   if(j.source) b+='<span class="badge bs">'+j.source+'</span>';
-  var dt = days<1?'Hoy':days===1?'Ayer':'Hace '+days+' días';
-  return '<a class="'+cls+'" href="'+(j.link||'https://cl.computrabajo.com/trabajos-de-trabajador-social')+'" target="_blank" rel="noopener">'+
+  var dt=days<1?'Hoy':days===1?'Ayer':'Hace '+days+' días';
+  return '<a class="'+cls+'" href="'+(j.link||'#')+'" target="_blank" rel="noopener">'+
     '<div class="ctop"><div class="ctitle">'+j.title+'</div>'+(b?'<div class="badges">'+b+'</div>':'')+
     '</div>'+(j.org?'<div class="corg">'+j.org+'</div>':'')+
     '<div class="cmeta"><span class="meta">'+(j.city?'📍 '+j.city+' · ':'')+'🕐 '+dt+'</span></div>'+
     '</a>';
 }
 
-// === FETCH FROM GITHUB ===
-// This is the key: raw.githubusercontent.com has open CORS headers
-// Exactly like the Entel app's JSON endpoint
-var JSON_URL = 'https://raw.githubusercontent.com/bcrm10/ts-jobs/main/jobs.json';
+// === CACHE ===
+function saveCache(jobs){ try{ localStorage.setItem('ts_jobs_v3',JSON.stringify({jobs:jobs,ts:Date.now()})); }catch(e){} }
+function loadCache(){ try{ var r=localStorage.getItem('ts_jobs_v3'); return r?JSON.parse(r):null; }catch(e){return null;} }
 
-function saveCache(data){ try{ localStorage.setItem('ts_v2',JSON.stringify({data:data,ts:Date.now()})); }catch(e){} }
-function loadCache(){ try{ var r=localStorage.getItem('ts_v2'); return r?JSON.parse(r):null; }catch(e){return null;} }
+// === ANTHROPIC API CALL ===
+async function buscarConClaude(apiKey){
+  var prompt = `Busca ofertas de empleo actuales en Chile para Trabajador/a Social o Asistente Social.
 
-async function cargar(){
-  var btn = document.getElementById('refreshBtn');
-  btn.disabled = true; btn.textContent = '⏳ Cargando...';
+Busca en estas fuentes web:
+- cl.computrabajo.com/trabajos-de-trabajador-social
+- cl.computrabajo.com/trabajos-de-asistente-social  
+- cl.computrabajo.com/trabajos-de-dupla-psicosocial
+- empleospublicos.cl (Servicio Civil Chile)
 
-  document.getElementById('lista').innerHTML =
-    '<div class="spin-wrap"><div class="spinner"></div><div class="slbl2">Cargando desde GitHub...</div></div>';
-  document.getElementById('statsBar').style.display='none';
+Para cada oferta que encuentres, extrae:
+- Título del cargo
+- Nombre de la organización/empresa
+- Ciudad
+- Fecha de publicación
+- URL directa a la oferta
 
-  try {
-    // Add cache-busting to always get fresh data
-    var resp = await fetch(JSON_URL+'?t='+Date.now(), { cache: 'no-store' });
-    if(!resp.ok) throw new Error('HTTP '+resp.status);
-    var data = await resp.json();
-    var jobs = data.jobs || [];
-
-    saveCache(data);
-    renderAll(jobs, data.updated_at);
-
-  } catch(e) {
-    // Try cache
-    var cache = loadCache();
-    if(cache && cache.data && cache.data.jobs && cache.data.jobs.length>0){
-      renderAll(cache.data.jobs, cache.data.updated_at);
-      document.getElementById('uinfo').textContent = '⚠️ Sin conexión — mostrando datos del caché local';
-    } else {
-      document.getElementById('lista').innerHTML =
-        '<div class="empty">'+
-        '⚠️ No se pudo cargar el archivo de ofertas.<br><br>'+
-        'Asegúrate de que el archivo <strong>jobs.json</strong> está en la rama main del repositorio <strong>bcrm10/ts-jobs</strong> en GitHub.<br><br>'+
-        'Mientras tanto, usa la pestaña <strong>Buscar directo</strong>.'+
-        '</div>';
+Responde ÚNICAMENTE con un JSON válido con esta estructura exacta, sin texto adicional:
+{
+  "jobs": [
+    {
+      "title": "nombre del cargo",
+      "org": "nombre organización",
+      "city": "ciudad, región",
+      "date": "fecha en formato ISO o descripción como hace 2 días",
+      "link": "url directa",
+      "source": "nombre del portal"
     }
-  }
-
-  btn.disabled = false; btn.textContent = '↻ Actualizar';
+  ]
 }
 
+Devuelve al menos 10 ofertas reales si las encuentras. Si no puedes acceder, devuelve {"jobs": []}.`;
+
+  var resp = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
+      'anthropic-dangerous-direct-browser-calls': 'true'
+    },
+    body: JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 4000,
+      tools: [{"type": "web_search_20250305", "name": "web_search"}],
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+
+  if(!resp.ok){
+    var err = await resp.json().catch(()=>({}));
+    throw new Error(err.error?.message || 'Error API '+resp.status);
+  }
+
+  var data = await resp.json();
+  
+  // Extraer el texto de la respuesta
+  var text = '';
+  for(var block of (data.content||[])){
+    if(block.type === 'text') text += block.text;
+  }
+
+  // Parsear JSON de la respuesta
+  var jsonMatch = text.match(/\{[\s\S]*"jobs"[\s\S]*\}/);
+  if(!jsonMatch) return [];
+  
+  var parsed = JSON.parse(jsonMatch[0]);
+  return parsed.jobs || [];
+}
+
+// === RENDER ===
 function renderAll(jobs, updatedAt){
-  // Sort: match first, then by date
   jobs.sort((a,b)=>{
     var ma=isMatch(a)?0:1, mb=isMatch(b)?0:1;
     if(ma!==mb) return ma-mb;
@@ -323,22 +403,69 @@ function renderAll(jobs, updatedAt){
   document.getElementById('sn').textContent = nuevas;
   document.getElementById('st').textContent = jobs.length;
   document.getElementById('cnt').textContent = matched.length;
-  document.getElementById('statsBar').style.display = jobs.length>0 ? 'flex' : 'none';
+  document.getElementById('statsBar').style.display = jobs.length>0?'flex':'none';
 
   var lista = document.getElementById('lista');
   if(matched.length>0){
     lista.innerHTML = matched.map(cardHTML).join('');
   } else if(jobs.length>0){
-    lista.innerHTML = '<div class="empty">Se cargaron '+jobs.length+' ofertas pero ninguna calza exactamente con el perfil.</div>'+
-      jobs.slice(0,10).map(cardHTML).join('');
+    lista.innerHTML = '<div class="empty">Se encontraron '+jobs.length+' ofertas pero ninguna calza exactamente con el perfil.<br><br>'+jobs.slice(0,5).map(cardHTML).join('')+'</div>';
   } else {
-    lista.innerHTML = '<div class="empty">Sin ofertas en este momento.</div>';
+    lista.innerHTML = '<div class="empty">Sin ofertas encontradas en este momento.</div>';
   }
 
-  // Update time
-  var t = updatedAt ? new Date(updatedAt).toLocaleString('es-CL',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
-  document.getElementById('uinfo').textContent = 'Datos actualizados: '+t;
-  document.getElementById('uinfoPerfil').textContent = 'Datos actualizados: '+t;
+  var t = updatedAt
+    ? new Date(updatedAt).toLocaleString('es-CL',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})
+    : new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('uinfo').textContent = 'Última búsqueda: '+t;
+  document.getElementById('uinfoPerfil').textContent = 'Última búsqueda: '+t;
+}
+
+// === CARGA PRINCIPAL ===
+async function cargar(){
+  var key = getKey();
+  var btn = document.getElementById('refreshBtn');
+  btn.disabled = true; btn.textContent = '⏳ Buscando...';
+
+  if(!key){
+    // Sin key: mostrar caché o mensaje
+    var cache = loadCache();
+    if(cache && cache.jobs && cache.jobs.length>0){
+      renderAll(cache.jobs, cache.ts);
+    } else {
+      document.getElementById('lista').innerHTML =
+        '<div class="empty">'+
+        '🔑 Ingresa tu API Key de Anthropic arriba para activar la búsqueda automática de ofertas reales.<br><br>'+
+        'Mientras tanto, usa la pestaña <strong>Buscar directo</strong>.'+
+        '</div>';
+      document.getElementById('statsBar').style.display='none';
+    }
+    btn.disabled=false; btn.textContent='↻ Actualizar';
+    return;
+  }
+
+  // Con key: buscar con Claude
+  document.getElementById('lista').innerHTML =
+    '<div class="spin-wrap"><div class="spinner"></div><div class="spin-lbl">Claude está buscando ofertas reales...</div></div>';
+  document.getElementById('statsBar').style.display='none';
+
+  try {
+    var jobs = await buscarConClaude(key);
+    saveCache(jobs);
+    renderAll(jobs, new Date().toISOString());
+  } catch(e) {
+    // Intentar con caché
+    var cache = loadCache();
+    if(cache && cache.jobs && cache.jobs.length>0){
+      renderAll(cache.jobs, cache.ts);
+      document.getElementById('uinfo').textContent = '⚠️ Error de conexión — mostrando última búsqueda guardada';
+    } else {
+      document.getElementById('lista').innerHTML =
+        '<div class="empty">⚠️ Error: '+e.message+'<br><br>Verifica que tu API key sea correcta.</div>';
+    }
+  }
+
+  btn.disabled=false; btn.textContent='↻ Actualizar';
 }
 
 // === TABS ===
@@ -349,11 +476,12 @@ function goTab(id){
 }
 
 // === INIT ===
-window.addEventListener('load',function(){
-  // Show cache immediately while loading fresh data
+window.addEventListener('load', function(){
+  renderBanner();
+  // Mostrar caché mientras
   var cache = loadCache();
-  if(cache && cache.data && cache.data.jobs){
-    renderAll(cache.data.jobs, cache.data.updated_at);
+  if(cache && cache.jobs && cache.jobs.length>0){
+    renderAll(cache.jobs, cache.ts);
   }
   cargar();
 });
