@@ -8,678 +8,357 @@
 <link rel="manifest" href="manifest.json">
 <style>
   :root {
-    --verde: #2E7D5E;
-    --verde-claro: #4CAF85;
-    --verde-fondo: #E8F5EE;
-    --gris-fondo: #F5F5F5;
-    --gris-borde: #E0E0E0;
-    --texto: #1A1A1A;
-    --texto-muted: #666;
-    --blanco: #FFFFFF;
-    --badge-perfil-bg: #E3F2EC;
-    --badge-perfil-color: #1B6B43;
+    --verde: #2E7D5E; --verde-claro: #4CAF85; --verde-fondo: #E8F5EE;
+    --gris: #F5F5F5; --borde: #E0E0E0; --txt: #1A1A1A; --muted: #666; --blanco: #fff;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: var(--gris-fondo);
-    color: var(--texto);
-    min-height: 100vh;
-  }
-  header {
-    background: var(--verde);
-    color: white;
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-title { font-size: 18px; font-weight: 700; letter-spacing: -0.3px; }
-  .header-sub { font-size: 11px; opacity: 0.8; margin-top: 2px; }
-  .refresh-btn {
-    background: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.4);
-    color: white;
-    padding: 8px 14px;
-    border-radius: 20px;
-    font-size: 13px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    transition: background 0.2s;
-  }
-  .refresh-btn:hover { background: rgba(255,255,255,0.3); }
-  .refresh-btn:disabled { opacity: 0.6; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--gris); color: var(--txt); }
 
-  /* Tabs */
+  header {
+    background: var(--verde); color: #fff; padding: 16px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .htitle { font-size: 18px; font-weight: 700; }
+  .hsub { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+  #refreshBtn {
+    background: rgba(255,255,255,.2); border: 1px solid rgba(255,255,255,.4);
+    color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px;
+    cursor: pointer; transition: background .2s;
+  }
+  #refreshBtn:hover { background: rgba(255,255,255,.3); }
+  #refreshBtn:disabled { opacity: .6; cursor: default; }
+
   .tabs {
-    background: var(--blanco);
-    display: flex;
-    border-bottom: 2px solid var(--gris-borde);
-    position: sticky;
-    top: 64px;
-    z-index: 99;
+    background: var(--blanco); display: flex;
+    border-bottom: 2px solid var(--borde);
+    position: sticky; top: 64px; z-index: 99;
   }
   .tab {
-    flex: 1;
-    padding: 12px 8px;
-    text-align: center;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--texto-muted);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    margin-bottom: -2px;
-    transition: all 0.2s;
-    user-select: none;
+    flex: 1; padding: 12px 6px; text-align: center; font-size: 13px; font-weight: 500;
+    color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent;
+    margin-bottom: -2px; transition: all .2s; user-select: none;
   }
   .tab.active { color: var(--verde); border-bottom-color: var(--verde); }
-  .tab-count {
-    display: inline-block;
-    background: var(--gris-fondo);
-    border-radius: 10px;
-    padding: 1px 6px;
-    font-size: 11px;
-    margin-left: 4px;
+  .cnt {
+    display: inline-block; background: var(--gris);
+    border-radius: 10px; padding: 1px 7px; font-size: 11px; margin-left: 4px;
   }
-  .tab.active .tab-count { background: var(--verde-fondo); color: var(--verde); }
+  .tab.active .cnt { background: var(--verde-fondo); color: var(--verde); }
 
-  /* Content */
   .content { padding: 16px; max-width: 680px; margin: 0 auto; }
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
+  .pnl { display: none; }
+  .pnl.active { display: block; }
 
-  /* Stats bar */
-  .stats-bar {
-    background: var(--verde-fondo);
-    border: 1px solid #B8DCC9;
-    border-radius: 12px;
-    padding: 12px 16px;
-    margin-bottom: 16px;
-    display: flex;
-    gap: 20px;
-    flex-wrap: wrap;
+  /* Stats */
+  .stats {
+    background: var(--verde-fondo); border: 1px solid #B8DCC9; border-radius: 12px;
+    padding: 12px 16px; margin-bottom: 16px;
+    display: flex; gap: 20px; flex-wrap: wrap;
   }
-  .stat-item { text-align: center; flex: 1; min-width: 60px; }
-  .stat-num { font-size: 22px; font-weight: 700; color: var(--verde); }
-  .stat-label { font-size: 11px; color: var(--texto-muted); margin-top: 2px; }
-
-  /* Search */
-  .search-wrap { margin-bottom: 14px; position: relative; }
-  .search-wrap input {
-    width: 100%;
-    padding: 10px 14px 10px 38px;
-    border: 1px solid var(--gris-borde);
-    border-radius: 24px;
-    font-size: 14px;
-    background: var(--blanco);
-    outline: none;
-  }
-  .search-wrap input:focus { border-color: var(--verde-claro); }
-  .search-icon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--texto-muted);
-    font-size: 16px;
-  }
+  .stat { text-align: center; flex: 1; }
+  .snum { font-size: 22px; font-weight: 700; color: var(--verde); }
+  .slbl { font-size: 11px; color: var(--muted); margin-top: 2px; }
 
   /* Cards */
-  .job-card {
-    background: var(--blanco);
-    border: 1px solid var(--gris-borde);
-    border-radius: 14px;
-    padding: 14px 16px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    transition: box-shadow 0.15s, border-color 0.15s;
-    text-decoration: none;
-    display: block;
-    color: inherit;
+  .card {
+    background: var(--blanco); border: 1px solid var(--borde); border-radius: 14px;
+    padding: 14px 16px; margin-bottom: 10px; display: block;
+    text-decoration: none; color: inherit; transition: box-shadow .15s, border-color .15s;
   }
-  .job-card:hover { box-shadow: 0 2px 12px rgba(46,125,94,0.12); border-color: #B8DCC9; }
-  .job-card.match { border-left: 3px solid var(--verde); }
-  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
-  .card-title { font-size: 14px; font-weight: 600; line-height: 1.4; flex: 1; }
-  .badge {
-    font-size: 10px;
-    font-weight: 600;
-    padding: 3px 8px;
-    border-radius: 10px;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .badge-perfil { background: var(--badge-perfil-bg); color: var(--badge-perfil-color); }
-  .badge-nuevo { background: #FFF3E0; color: #E65100; }
-  .badge-source { background: #EDE7F6; color: #4527A0; }
-  .card-org { font-size: 12px; color: var(--verde); font-weight: 500; margin-top: 6px; }
-  .card-meta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
-  .meta-item { font-size: 12px; color: var(--texto-muted); display: flex; align-items: center; gap: 3px; }
+  .card:hover { box-shadow: 0 2px 12px rgba(46,125,94,.12); border-color: #B8DCC9; }
+  .card.match { border-left: 3px solid var(--verde); }
+  .ctop { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .ctitle { font-size: 14px; font-weight: 600; line-height: 1.4; flex: 1; }
+  .badges { display: flex; gap: 4px; flex-wrap: wrap; flex-shrink: 0; }
+  .badge { font-size: 10px; font-weight: 600; padding: 3px 8px; border-radius: 10px; white-space: nowrap; }
+  .bp { background: #E3F2EC; color: #1B6B43; }
+  .bn { background: #FFF3E0; color: #E65100; }
+  .bs { background: #EDE7F6; color: #4527A0; }
+  .corg { font-size: 12px; color: var(--verde); font-weight: 500; margin-top: 6px; }
+  .cmeta { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px; }
+  .meta { font-size: 12px; color: var(--muted); }
 
-  /* Fuentes */
-  .fuentes-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 10px;
-    margin-bottom: 16px;
+  /* Sources */
+  .sgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr)); gap: 10px; margin-bottom: 16px; }
+  .scard {
+    background: var(--blanco); border: 1px solid var(--borde); border-radius: 12px;
+    padding: 14px; text-align: center; text-decoration: none; color: inherit;
+    transition: all .15s; display: block;
   }
-  .fuente-card {
-    background: var(--blanco);
-    border: 1px solid var(--gris-borde);
-    border-radius: 12px;
-    padding: 14px;
-    text-align: center;
-    text-decoration: none;
-    color: inherit;
-    transition: all 0.15s;
-    display: block;
-  }
-  .fuente-card:hover { border-color: var(--verde-claro); box-shadow: 0 2px 8px rgba(46,125,94,0.1); }
-  .fuente-icon { font-size: 28px; margin-bottom: 6px; }
-  .fuente-name { font-size: 13px; font-weight: 600; }
-  .fuente-desc { font-size: 11px; color: var(--texto-muted); margin-top: 3px; }
-  .fuente-badge { font-size: 10px; background: var(--verde-fondo); color: var(--verde); padding: 2px 6px; border-radius: 8px; display: inline-block; margin-top: 4px; }
+  .scard:hover { border-color: var(--verde-claro); box-shadow: 0 2px 8px rgba(46,125,94,.1); }
+  .sicon { font-size: 26px; margin-bottom: 6px; }
+  .sname { font-size: 13px; font-weight: 600; }
+  .sdesc { font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .sbadge { font-size: 10px; background: var(--verde-fondo); color: var(--verde); padding: 2px 6px; border-radius: 8px; display: inline-block; margin-top: 4px; }
+  .slabel { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin: 16px 0 8px; }
 
   /* Perfil */
-  .perfil-section { margin-bottom: 20px; }
-  .perfil-section h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--verde); }
-  .kw-grid { display: flex; flex-wrap: wrap; gap: 6px; }
-  .kw-chip {
-    font-size: 12px;
-    background: var(--verde-fondo);
-    color: var(--badge-perfil-color);
-    border: 1px solid #B8DCC9;
-    padding: 4px 10px;
-    border-radius: 14px;
-  }
-  .area-pill {
-    font-size: 12px;
-    background: #EDE7F6;
-    color: #4527A0;
-    border: 1px solid #D1C4E9;
-    padding: 4px 10px;
-    border-radius: 14px;
-  }
-  .update-info {
-    font-size: 12px;
-    color: var(--texto-muted);
-    text-align: center;
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px solid var(--gris-borde);
-  }
+  .psec { margin-bottom: 20px; }
+  .psec h3 { font-size: 14px; font-weight: 600; margin-bottom: 10px; color: var(--verde); }
+  .kwrap { display: flex; flex-wrap: wrap; gap: 6px; }
+  .kw { font-size: 12px; background: var(--verde-fondo); color: #1B6B43; border: 1px solid #B8DCC9; padding: 4px 10px; border-radius: 14px; }
+  .ap { font-size: 12px; background: #EDE7F6; color: #4527A0; border: 1px solid #D1C4E9; padding: 4px 10px; border-radius: 14px; }
+  .ibox { background: var(--verde-fondo); border-radius: 10px; padding: 14px; font-size: 13px; line-height: 1.7; }
 
-  /* Loading / empty */
-  .loading { text-align: center; padding: 40px 20px; color: var(--texto-muted); }
-  .loading-spin {
-    display: inline-block;
-    width: 32px; height: 32px;
-    border: 3px solid var(--gris-borde);
-    border-top-color: var(--verde);
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-    margin-bottom: 12px;
+  /* Spin */
+  .spin-wrap { text-align: center; padding: 50px 20px; }
+  .spinner {
+    display: inline-block; width: 36px; height: 36px;
+    border: 3px solid var(--borde); border-top-color: var(--verde);
+    border-radius: 50%; animation: sp .8s linear infinite; margin-bottom: 14px;
   }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .empty { text-align: center; padding: 30px 20px; color: var(--texto-muted); font-size: 14px; }
+  @keyframes sp { to { transform: rotate(360deg); } }
+  .slbl2 { color: var(--muted); font-size: 14px; }
 
-  .section-label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--texto-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin: 16px 0 8px;
-  }
+  .uinfo { font-size: 12px; color: var(--muted); text-align: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--borde); }
+  .empty { text-align: center; padding: 30px 20px; color: var(--muted); font-size: 14px; line-height: 1.6; }
 </style>
 </head>
 <body>
 
 <header>
   <div>
-    <div class="header-title">🤝 TS Jobs</div>
-    <div class="header-sub">Trabajador/a Social · Chile</div>
+    <div class="htitle">🤝 TS Jobs</div>
+    <div class="hsub">Trabajador/a Social · Chile</div>
   </div>
-  <button class="refresh-btn" id="refreshBtn" onclick="actualizarTodo()">
-    ↻ Actualizar
-  </button>
+  <button id="refreshBtn" onclick="cargar()">↻ Actualizar</button>
 </header>
 
 <div class="tabs">
-  <div class="tab active" onclick="cambiarTab('para-ti')">
-    Para ti <span class="tab-count" id="cnt-para-ti">0</span>
-  </div>
-  <div class="tab" onclick="cambiarTab('fuentes')">
-    Buscar
-  </div>
-  <div class="tab" onclick="cambiarTab('perfil')">
-    Mi perfil
-  </div>
+  <div class="tab active" onclick="goTab('para-ti')">Para ti <span class="cnt" id="cnt">0</span></div>
+  <div class="tab" onclick="goTab('buscar')">Buscar directo</div>
+  <div class="tab" onclick="goTab('perfil')">Mi perfil</div>
 </div>
 
 <div class="content">
 
-  <!-- TAB: Para ti -->
-  <div class="tab-panel active" id="panel-para-ti">
-    <div class="stats-bar" id="statsBar" style="display:none">
-      <div class="stat-item">
-        <div class="stat-num" id="stat-match">0</div>
-        <div class="stat-label">calzan con tu perfil</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num" id="stat-nuevas">0</div>
-        <div class="stat-label">menos de 7 días</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num" id="stat-total">0</div>
-        <div class="stat-label">total encontradas</div>
+  <!-- PARA TI -->
+  <div class="pnl active" id="pnl-para-ti">
+    <div class="stats" id="statsBar" style="display:none">
+      <div class="stat"><div class="snum" id="sm">0</div><div class="slbl">calzan contigo</div></div>
+      <div class="stat"><div class="snum" id="sn">0</div><div class="slbl">menos de 7 días</div></div>
+      <div class="stat"><div class="snum" id="st">0</div><div class="slbl">total cargadas</div></div>
+    </div>
+    <div id="lista">
+      <div class="spin-wrap">
+        <div class="spinner"></div>
+        <div class="slbl2">Cargando ofertas...</div>
       </div>
     </div>
-    <div id="lista-para-ti">
-      <div class="loading">
-        <div class="loading-spin"></div>
-        <div>Buscando ofertas...</div>
-      </div>
-    </div>
-    <div class="update-info" id="updateInfo"></div>
+    <div class="uinfo" id="uinfo"></div>
   </div>
 
-  <!-- TAB: Fuentes -->
-  <div class="tab-panel" id="panel-fuentes">
-    <div class="section-label">Sector público</div>
-    <div class="fuentes-grid">
-      <a class="fuente-card" href="https://www.serviciocivil.cl/trabaja-con-nosotros/oportunidades-de-empleo/?buscar=trabajador+social" target="_blank">
-        <div class="fuente-icon">🏛️</div>
-        <div class="fuente-name">Servicio Civil</div>
-        <div class="fuente-desc">Gobierno de Chile</div>
-        <div class="fuente-badge">Alta cobertura</div>
+  <!-- BUSCAR DIRECTO -->
+  <div class="pnl" id="pnl-buscar">
+    <div class="slabel">Los más completos</div>
+    <div class="sgrid">
+      <a class="scard" href="https://cl.computrabajo.com/trabajos-de-trabajador-social" target="_blank">
+        <div class="sicon">🔍</div><div class="sname">CompuTrabajo</div>
+        <div class="sdesc">+500 ofertas TS</div><div class="sbadge">⭐ Más completo</div>
       </a>
-      <a class="fuente-card" href="https://www.empleospublicos.cl/portal/empleo/buscar-empleo?query=trabajador+social" target="_blank">
-        <div class="fuente-icon">📋</div>
-        <div class="fuente-name">Empleos Públicos</div>
-        <div class="fuente-desc">SENCE · BNE</div>
-        <div class="fuente-badge">Gratuito</div>
+      <a class="scard" href="https://empleospublicos.cl/portal/empleo/convocatoria/lista?palabraBusqueda=trabajador+social" target="_blank">
+        <div class="sicon">🏛️</div><div class="sname">Empleos Públicos</div>
+        <div class="sdesc">Servicio Civil</div><div class="sbadge">⭐ Gobierno</div>
       </a>
-      <a class="fuente-card" href="https://www.municipalidaddestgo.cl/empleos" target="_blank">
-        <div class="fuente-icon">🏙️</div>
-        <div class="fuente-name">Municipalidades</div>
-        <div class="fuente-desc">Sector municipal</div>
-        <div class="fuente-badge">Regional</div>
+      <a class="scard" href="https://www.indeed.com/jobs?q=trabajador+social&l=Chile&sort=date" target="_blank">
+        <div class="sicon">🌐</div><div class="sname">Indeed Chile</div>
+        <div class="sdesc">Agregador global</div><div class="sbadge">Gratuito</div>
+      </a>
+      <a class="scard" href="https://cl.linkedin.com/jobs/search/?keywords=trabajador%20social&location=Chile" target="_blank">
+        <div class="sicon">🔗</div><div class="sname">LinkedIn</div>
+        <div class="sdesc">Red profesional</div><div class="sbadge">100+ resultados</div>
       </a>
     </div>
-
-    <div class="section-label">Portales privados</div>
-    <div class="fuentes-grid">
-      <a class="fuente-card" href="https://www.trabajando.com/trabajo/trabajador-social" target="_blank">
-        <div class="fuente-icon">💼</div>
-        <div class="fuente-name">Trabajando.com</div>
-        <div class="fuente-desc">Portal líder Chile</div>
-        <div class="fuente-badge">Gratuito</div>
+    <div class="slabel">Por área</div>
+    <div class="sgrid">
+      <a class="scard" href="https://cl.computrabajo.com/trabajos-de-dupla-psicosocial" target="_blank">
+        <div class="sicon">🧠</div><div class="sname">Dupla Psicosocial</div>
+        <div class="sdesc">TS + Psicólogo</div><div class="sbadge">CompuTrabajo</div>
       </a>
-      <a class="fuente-card" href="https://cl.computrabajo.com/trabajos-de-trabajador-social" target="_blank">
-        <div class="fuente-icon">🔍</div>
-        <div class="fuente-name">CompuTrabajo</div>
-        <div class="fuente-desc">Latinoamérica</div>
-        <div class="fuente-badge">Gratuito</div>
+      <a class="scard" href="https://cl.computrabajo.com/trabajos-de-trabajador-social-en-hospital" target="_blank">
+        <div class="sicon">🏥</div><div class="sname">Salud / CESFAM</div>
+        <div class="sdesc">Hospitales · Clínicas</div><div class="sbadge">CompuTrabajo</div>
       </a>
-      <a class="fuente-card" href="https://www.indeed.com/jobs?q=trabajador+social&l=Chile" target="_blank">
-        <div class="fuente-icon">🌐</div>
-        <div class="fuente-name">Indeed Chile</div>
-        <div class="fuente-desc">Global</div>
-        <div class="fuente-badge">Gratuito</div>
+      <a class="scard" href="https://cl.computrabajo.com/trabajos-de-asistente-social-en-municipalidad" target="_blank">
+        <div class="sicon">🏙️</div><div class="sname">Municipalidades</div>
+        <div class="sdesc">Sector municipal</div><div class="sbadge">CompuTrabajo</div>
       </a>
-      <a class="fuente-card" href="https://cl.linkedin.com/jobs/search/?keywords=trabajador%20social&location=Chile" target="_blank">
-        <div class="fuente-icon">🔗</div>
-        <div class="fuente-name">LinkedIn</div>
-        <div class="fuente-desc">Red profesional</div>
-        <div class="fuente-badge">Requiere cuenta</div>
-      </a>
-      <a class="fuente-card" href="https://buscatrabajo.cl/empleos/?q=trabajador+social" target="_blank">
-        <div class="fuente-icon">🇨🇱</div>
-        <div class="fuente-name">BuscaTrabajo</div>
-        <div class="fuente-desc">Chile</div>
-        <div class="fuente-badge">Gratuito</div>
-      </a>
-    </div>
-
-    <div class="section-label">Salud y hospitales</div>
-    <div class="fuentes-grid">
-      <a class="fuente-card" href="https://www.minsal.cl/trabaja-con-nosotros/" target="_blank">
-        <div class="fuente-icon">🏥</div>
-        <div class="fuente-name">MINSAL</div>
-        <div class="fuente-desc">Ministerio de Salud</div>
-        <div class="fuente-badge">CESFAM · Hospitales</div>
-      </a>
-      <a class="fuente-card" href="https://www.redsalud.gov.cl/portal/url/page/minsalcl/g_recursos_humanos/vacantes.html" target="_blank">
-        <div class="fuente-icon">🩺</div>
-        <div class="fuente-name">Red Salud</div>
-        <div class="fuente-desc">Hospitales red pública</div>
-        <div class="fuente-badge">Público</div>
-      </a>
-    </div>
-
-    <div class="section-label">Infancia y familia</div>
-    <div class="fuentes-grid">
-      <a class="fuente-card" href="https://www.mejor-ninez.cl/trabaja-con-nosotros/" target="_blank">
-        <div class="fuente-icon">👶</div>
-        <div class="fuente-name">Mejor Niñez</div>
-        <div class="fuente-desc">Ex SENAME</div>
-        <div class="fuente-badge">Infancia</div>
-      </a>
-      <a class="fuente-card" href="https://www.trabajando.com/trabajo/asistente-social" target="_blank">
-        <div class="fuente-icon">👨‍👩‍👧</div>
-        <div class="fuente-name">Familia / OPD</div>
-        <div class="fuente-desc">ONG · Fundaciones</div>
-        <div class="fuente-badge">Terreno</div>
+      <a class="scard" href="https://cl.computrabajo.com/trabajos-de-trabajador-social-infancia" target="_blank">
+        <div class="sicon">👶</div><div class="sname">Infancia / OPD</div>
+        <div class="sdesc">Mejor Niñez · SENAME</div><div class="sbadge">CompuTrabajo</div>
       </a>
     </div>
   </div>
 
-  <!-- TAB: Perfil -->
-  <div class="tab-panel" id="panel-perfil">
-    <div class="perfil-section">
-      <h3>Palabras clave activas</h3>
-      <div class="kw-grid" id="kw-display"></div>
+  <!-- MI PERFIL -->
+  <div class="pnl" id="pnl-perfil">
+    <div class="psec">
+      <h3>Palabras clave del filtro</h3>
+      <div class="kwrap" id="kwDisplay"></div>
     </div>
-    <div class="perfil-section">
-      <h3>Áreas de búsqueda</h3>
-      <div class="kw-grid" id="areas-display"></div>
+    <div class="psec">
+      <h3>Áreas buscadas</h3>
+      <div class="kwrap" id="arDisplay"></div>
     </div>
-    <div class="perfil-section">
-      <h3>Fuente de datos</h3>
-      <div style="background: var(--verde-fondo); border-radius: 10px; padding: 14px; font-size: 13px; line-height: 1.7;">
-        Esta app consume el feed JSON público de <strong>Trabajando.com</strong> que incluye ofertas de Trabajador/a Social en Chile.<br><br>
-        Los datos se cargan directamente desde tu navegador. <strong>Sin servidor, sin costo, sin API key.</strong><br><br>
-        Presiona <strong>Actualizar</strong> para traer las ofertas más recientes.
+    <div class="psec">
+      <h3>¿Cómo funciona "Para ti"?</h3>
+      <div class="ibox">
+        La app lee directamente el archivo <strong>jobs.json</strong> alojado en tu repositorio GitHub.<br><br>
+        Un script de <strong>GitHub Actions</strong> (gratis) lo actualiza automáticamente cada día a las 6am Chile, scrapeando CompuTrabajo y Trabajando.com.<br><br>
+        <strong>Sin servidor · Sin API key · Sin costo</strong> — exactamente igual que la app de Entel.
       </div>
     </div>
-    <div class="update-info" id="updateInfoPerfil"></div>
+    <div class="uinfo" id="uinfoPerfil"></div>
   </div>
 
 </div>
 
 <script>
+// === PERFIL ===
 var KW = [
-  'trabajador social','asistente social','trabajo social','ts ','t.s.',
-  'intervención social','intervención comunitaria',
-  'gestor social','gestión social','coordinador social',
-  'programa social','programas sociales',
-  'bienestar social','bienestar',
-  'cesfam','hospital','salud',
-  'municipio','municipalidad','municipal',
-  'sename','mejor niñez','infancia','niñez','familia',
-  'vulnerabilidad','vulnerables',
-  'dupla psicosocial','dupla socioeducativa',
-  'diagnóstico social','diagnóstico','visita domiciliaria',
-  'case','cowork','omil','oficina municipal',
-  'protección social','red de apoyo','comunidad',
-  'redes sociales','coordinación de redes',
-  'recursos humanos','rrhh'
+  'trabajador social','asistente social','trabajo social',
+  'intervención social','gestor social','gestión social',
+  'coordinador social','coordinadora social',
+  'programa social','programas sociales','proyecto social',
+  'bienestar social','bienestar laboral',
+  'cesfam','dupla psicosocial','dupla socioeducativa',
+  'municipio','municipalidad','omil',
+  'sename','mejor niñez','infancia','niñez',
+  'diagnóstico social','visita domiciliaria',
+  'protección social','vulnerabilidad','vulnerables',
 ];
+var AREAS = ['Intervención social / terreno','Gestión y programas sociales',
+  'Salud · CESFAM · Hospitales','Municipalidades · Sector público',
+  'Infancia y familia · SENAME','Empresas · Bienestar laboral'];
 
-var AREAS = [
-  'Intervención social / terreno',
-  'Gestión y programas sociales',
-  'Salud · CESFAM · Hospitales',
-  'Municipalidades · Sector público',
-  'Infancia y familia · SENAME',
-  'Empresas · RR.HH.'
-];
+document.getElementById('kwDisplay').innerHTML = KW.map(k=>'<span class="kw">'+k+'</span>').join('');
+document.getElementById('arDisplay').innerHTML = AREAS.map(a=>'<span class="ap">'+a+'</span>').join('');
 
-// Render keywords in perfil tab
-document.getElementById('kw-display').innerHTML = KW.map(k =>
-  '<span class="kw-chip">' + k + '</span>'
-).join('');
-document.getElementById('areas-display').innerHTML = AREAS.map(a =>
-  '<span class="area-pill">' + a + '</span>'
-).join('');
-
-var allJobs = [];
-var lastUpdate = null;
-
-function isMatch(job) {
-  var text = (job.title + ' ' + (job.category || '') + ' ' + (job.description || '')).toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-  var kwNorm = KW.map(k => k.normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
-  return kwNorm.some(k => text.includes(k));
+// === UTILS ===
+function norm(s){ return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+function isMatch(j){
+  var t = norm(j.title)+' '+norm(j.org||'');
+  return KW.some(k=>t.includes(norm(k)));
+}
+function daysAgo(d){
+  if(!d) return 99;
+  var dt = new Date(d);
+  return isNaN(dt)?99:Math.floor((Date.now()-dt)/86400000);
 }
 
-function daysAgo(dateStr) {
-  if (!dateStr) return 99;
-  var d = new Date(dateStr);
-  if (isNaN(d)) return 99;
-  return Math.floor((Date.now() - d.getTime()) / 86400000);
+// === CARD ===
+function cardHTML(j){
+  var match = isMatch(j), days = daysAgo(j.date), isNew = days<7;
+  var cls = 'card'+(match?' match':'');
+  var b = '';
+  if(match) b+='<span class="badge bp">✓ Perfil</span>';
+  if(isNew) b+='<span class="badge bn">Nuevo</span>';
+  if(j.source) b+='<span class="badge bs">'+j.source+'</span>';
+  var dt = days<1?'Hoy':days===1?'Ayer':'Hace '+days+' días';
+  return '<a class="'+cls+'" href="'+(j.link||'https://cl.computrabajo.com/trabajos-de-trabajador-social')+'" target="_blank" rel="noopener">'+
+    '<div class="ctop"><div class="ctitle">'+j.title+'</div>'+(b?'<div class="badges">'+b+'</div>':'')+
+    '</div>'+(j.org?'<div class="corg">'+j.org+'</div>':'')+
+    '<div class="cmeta"><span class="meta">'+(j.city?'📍 '+j.city+' · ':'')+'🕐 '+dt+'</span></div>'+
+    '</a>';
 }
 
-function renderCard(job) {
-  var match = isMatch(job);
-  var days = daysAgo(job.date);
-  var isNew = days < 7;
-  var cardClass = 'job-card' + (match ? ' match' : '');
-  var badges = '';
-  if (match) badges += '<span class="badge badge-perfil">✓ Perfil</span>';
-  if (isNew) badges += '<span class="badge badge-nuevo">Nuevo</span>';
-  if (job.source) badges += '<span class="badge badge-source">' + job.source + '</span>';
-  var daysText = days < 1 ? 'Hoy' : days === 1 ? 'Ayer' : 'Hace ' + days + ' días';
-  return '<a class="' + cardClass + '" href="' + (job.link || '#') + '" target="_blank">' +
-    '<div class="card-top"><div class="card-title">' + job.title + '</div>' +
-    (badges ? '<div style="display:flex;gap:4px;flex-wrap:wrap">' + badges + '</div>' : '') + '</div>' +
-    (job.org ? '<div class="card-org">' + job.org + '</div>' : '') +
-    '<div class="card-meta">' +
-    (job.city ? '<span class="meta-item">📍 ' + job.city + '</span>' : '') +
-    '<span class="meta-item">🕐 ' + daysText + '</span>' +
-    (job.contract ? '<span class="meta-item">📄 ' + job.contract + '</span>' : '') +
-    '</div></a>';
-}
+// === FETCH FROM GITHUB ===
+// This is the key: raw.githubusercontent.com has open CORS headers
+// Exactly like the Entel app's JSON endpoint
+var JSON_URL = 'https://raw.githubusercontent.com/bcrm10/ts-jobs/main/jobs.json';
 
-function renderLista(jobs, containerId) {
-  var el = document.getElementById(containerId);
-  if (!jobs.length) {
-    el.innerHTML = '<div class="empty">Sin ofertas que mostrar</div>';
-    return;
-  }
-  el.innerHTML = jobs.map(renderCard).join('');
-}
+function saveCache(data){ try{ localStorage.setItem('ts_v2',JSON.stringify({data:data,ts:Date.now()})); }catch(e){} }
+function loadCache(){ try{ var r=localStorage.getItem('ts_v2'); return r?JSON.parse(r):null; }catch(e){return null;} }
 
-function parseFeed(data) {
-  // Trabajando.com feed structure (RSS-like JSON or direct)
-  var jobs = [];
-  // Try different structures
-  var items = data.jobs || data.offers || data.vacantes || data.items || data.data || [];
-  if (Array.isArray(items)) {
-    items.forEach(function(item) {
-      jobs.push({
-        title: item.title || item.name || item.cargo || item.puesto || '',
-        org: item.company || item.empresa || item.organization || '',
-        city: item.city || item.ciudad || item.location || '',
-        date: item.date || item.fecha || item.publishedAt || item.publication_date || '',
-        link: item.link || item.url || item.apply_url || '',
-        contract: item.contract_type || item.tipo_contrato || '',
-        source: item.source || ''
-      });
-    });
-  }
-  return jobs;
-}
-
-// RSS parser (for Trabajando.com RSS)
-function parseRSS(xmlText, sourceName) {
-  var jobs = [];
-  try {
-    var parser = new DOMParser();
-    var xml = parser.parseFromString(xmlText, 'application/xml');
-    var items = xml.querySelectorAll('item');
-    items.forEach(function(item) {
-      var title = item.querySelector('title') ? item.querySelector('title').textContent : '';
-      var link = item.querySelector('link') ? item.querySelector('link').textContent : '';
-      var desc = item.querySelector('description') ? item.querySelector('description').textContent : '';
-      var pubDate = item.querySelector('pubDate') ? item.querySelector('pubDate').textContent : '';
-      // Parse org/city from description
-      var org = '', city = '';
-      var mEmp = desc.match(/empresa[:\s]+([^<\n]+)/i);
-      if (mEmp) org = mEmp[1].trim();
-      var mCiud = desc.match(/ciudad[:\s]+([^<\n,]+)/i) || desc.match(/ubicaci[oó]n[:\s]+([^<\n,]+)/i);
-      if (mCiud) city = mCiud[1].trim();
-      jobs.push({ title: title, org: org, city: city, date: pubDate, link: link, description: desc, source: sourceName });
-    });
-  } catch(e) {}
-  return jobs;
-}
-
-// CORS proxy (allorigins - free, no key needed)
-function proxyUrl(url) {
-  return 'https://api.allorigins.win/raw?url=' + encodeURIComponent(url);
-}
-
-var FEEDS = [
-  {
-    url: 'https://www.trabajando.com/rss?q=trabajador+social&l=Chile',
-    type: 'rss',
-    source: 'Trabajando'
-  },
-  {
-    url: 'https://cl.computrabajo.com/rss/ofertas?q=trabajador+social',
-    type: 'rss',
-    source: 'CompuTrabajo'
-  }
-];
-
-async function fetchFeed(feed) {
-  try {
-    var resp = await fetch(proxyUrl(feed.url), { signal: AbortSignal.timeout(8000) });
-    if (!resp.ok) return [];
-    var text = await resp.text();
-    if (feed.type === 'rss') return parseRSS(text, feed.source);
-    var json = JSON.parse(text);
-    return parseFeed(json);
-  } catch(e) {
-    return [];
-  }
-}
-
-// Cache in localStorage
-function saveCache(jobs) {
-  try {
-    localStorage.setItem('ts_jobs_cache', JSON.stringify({ jobs: jobs, ts: Date.now() }));
-  } catch(e) {}
-}
-function loadCache() {
-  try {
-    var raw = localStorage.getItem('ts_jobs_cache');
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch(e) { return null; }
-}
-
-async function actualizarTodo() {
+async function cargar(){
   var btn = document.getElementById('refreshBtn');
-  btn.disabled = true;
-  btn.textContent = '⏳ Cargando...';
+  btn.disabled = true; btn.textContent = '⏳ Cargando...';
 
-  document.getElementById('lista-para-ti').innerHTML =
-    '<div class="loading"><div class="loading-spin"></div><div>Buscando ofertas...</div></div>';
-  document.getElementById('statsBar').style.display = 'none';
+  document.getElementById('lista').innerHTML =
+    '<div class="spin-wrap"><div class="spinner"></div><div class="slbl2">Cargando desde GitHub...</div></div>';
+  document.getElementById('statsBar').style.display='none';
 
-  var results = await Promise.allSettled(FEEDS.map(fetchFeed));
-  var jobs = [];
-  results.forEach(function(r) {
-    if (r.status === 'fulfilled' && Array.isArray(r.value)) {
-      jobs = jobs.concat(r.value);
+  try {
+    // Add cache-busting to always get fresh data
+    var resp = await fetch(JSON_URL+'?t='+Date.now(), { cache: 'no-store' });
+    if(!resp.ok) throw new Error('HTTP '+resp.status);
+    var data = await resp.json();
+    var jobs = data.jobs || [];
+
+    saveCache(data);
+    renderAll(jobs, data.updated_at);
+
+  } catch(e) {
+    // Try cache
+    var cache = loadCache();
+    if(cache && cache.data && cache.data.jobs && cache.data.jobs.length>0){
+      renderAll(cache.data.jobs, cache.data.updated_at);
+      document.getElementById('uinfo').textContent = '⚠️ Sin conexión — mostrando datos del caché local';
+    } else {
+      document.getElementById('lista').innerHTML =
+        '<div class="empty">'+
+        '⚠️ No se pudo cargar el archivo de ofertas.<br><br>'+
+        'Asegúrate de que el archivo <strong>jobs.json</strong> está en la rama main del repositorio <strong>bcrm10/ts-jobs</strong> en GitHub.<br><br>'+
+        'Mientras tanto, usa la pestaña <strong>Buscar directo</strong>.'+
+        '</div>';
     }
-  });
-
-  // Deduplicate by title+org
-  var seen = new Set();
-  jobs = jobs.filter(function(j) {
-    var key = (j.title + '|' + j.org).toLowerCase();
-    if (seen.has(key)) return false;
-    seen.add(key); return true;
-  });
-
-  // Sort: matches first, then by date
-  jobs.sort(function(a, b) {
-    var ma = isMatch(a) ? 0 : 1, mb = isMatch(b) ? 0 : 1;
-    if (ma !== mb) return ma - mb;
-    return daysAgo(a.date) - daysAgo(b.date);
-  });
-
-  allJobs = jobs;
-  lastUpdate = new Date();
-  saveCache(jobs);
-
-  var matchJobs = jobs.filter(isMatch);
-  var nuevas = matchJobs.filter(function(j) { return daysAgo(j.date) < 7; });
-
-  document.getElementById('stat-match').textContent = matchJobs.length;
-  document.getElementById('stat-nuevas').textContent = nuevas.length;
-  document.getElementById('stat-total').textContent = jobs.length;
-  document.getElementById('cnt-para-ti').textContent = matchJobs.length;
-
-  if (jobs.length > 0) {
-    document.getElementById('statsBar').style.display = 'flex';
   }
 
-  // Si no hay resultados, mostrar mensaje con links directos
-  if (matchJobs.length === 0) {
-    document.getElementById('lista-para-ti').innerHTML =
-      '<div class="empty">' +
-      (jobs.length === 0
-        ? '⚠️ No se pudieron cargar los feeds RSS.<br><br>Los portales de empleo bloquean algunas solicitudes automáticas. Usa la pestaña <strong>Buscar</strong> para ir directo a cada portal.'
-        : '✅ Se cargaron ' + jobs.length + ' ofertas pero ninguna calza exactamente con tu perfil.<br><br>Revisa la pestaña <strong>Buscar</strong> para buscar manualmente.') +
-      '</div>';
+  btn.disabled = false; btn.textContent = '↻ Actualizar';
+}
+
+function renderAll(jobs, updatedAt){
+  // Sort: match first, then by date
+  jobs.sort((a,b)=>{
+    var ma=isMatch(a)?0:1, mb=isMatch(b)?0:1;
+    if(ma!==mb) return ma-mb;
+    return daysAgo(a.date)-daysAgo(b.date);
+  });
+
+  var matched = jobs.filter(isMatch);
+  var nuevas  = matched.filter(j=>daysAgo(j.date)<7).length;
+
+  document.getElementById('sm').textContent = matched.length;
+  document.getElementById('sn').textContent = nuevas;
+  document.getElementById('st').textContent = jobs.length;
+  document.getElementById('cnt').textContent = matched.length;
+  document.getElementById('statsBar').style.display = jobs.length>0 ? 'flex' : 'none';
+
+  var lista = document.getElementById('lista');
+  if(matched.length>0){
+    lista.innerHTML = matched.map(cardHTML).join('');
+  } else if(jobs.length>0){
+    lista.innerHTML = '<div class="empty">Se cargaron '+jobs.length+' ofertas pero ninguna calza exactamente con el perfil.</div>'+
+      jobs.slice(0,10).map(cardHTML).join('');
   } else {
-    renderLista(matchJobs, 'lista-para-ti');
+    lista.innerHTML = '<div class="empty">Sin ofertas en este momento.</div>';
   }
 
-  var timeStr = lastUpdate.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
-  document.getElementById('updateInfo').textContent = 'Última actualización: ' + timeStr;
-  document.getElementById('updateInfoPerfil').textContent = 'Última actualización: ' + timeStr;
-
-  btn.disabled = false;
-  btn.textContent = '↻ Actualizar';
+  // Update time
+  var t = updatedAt ? new Date(updatedAt).toLocaleString('es-CL',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'}) : new Date().toLocaleTimeString('es-CL',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('uinfo').textContent = 'Datos actualizados: '+t;
+  document.getElementById('uinfoPerfil').textContent = 'Datos actualizados: '+t;
 }
 
-function cambiarTab(id) {
-  document.querySelectorAll('.tab').forEach(function(t, i) {
-    var ids = ['para-ti', 'fuentes', 'perfil'];
-    t.classList.toggle('active', ids[i] === id);
-  });
-  document.querySelectorAll('.tab-panel').forEach(function(p) {
-    p.classList.toggle('active', p.id === 'panel-' + id);
-  });
+// === TABS ===
+function goTab(id){
+  var ids=['para-ti','buscar','perfil'];
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',ids[i]===id));
+  document.querySelectorAll('.pnl').forEach(p=>p.classList.toggle('active',p.id==='pnl-'+id));
 }
 
-// Init: load cache first, then fetch
-window.addEventListener('load', function() {
+// === INIT ===
+window.addEventListener('load',function(){
+  // Show cache immediately while loading fresh data
   var cache = loadCache();
-  if (cache && cache.jobs && cache.jobs.length > 0) {
-    allJobs = cache.jobs;
-    var matchJobs = cache.jobs.filter(isMatch);
-    var nuevas = matchJobs.filter(function(j) { return daysAgo(j.date) < 7; });
-    document.getElementById('stat-match').textContent = matchJobs.length;
-    document.getElementById('stat-nuevas').textContent = nuevas.length;
-    document.getElementById('stat-total').textContent = cache.jobs.length;
-    document.getElementById('cnt-para-ti').textContent = matchJobs.length;
-    document.getElementById('statsBar').style.display = 'flex';
-    if (matchJobs.length > 0) {
-      renderLista(matchJobs, 'lista-para-ti');
-    }
-    var cacheDate = new Date(cache.ts);
-    document.getElementById('updateInfo').textContent =
-      'Desde caché: ' + cacheDate.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+  if(cache && cache.data && cache.data.jobs){
+    renderAll(cache.data.jobs, cache.data.updated_at);
   }
-  actualizarTodo();
+  cargar();
 });
-</script>
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js");
-}
+
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js');
 </script>
 </body>
 </html>
